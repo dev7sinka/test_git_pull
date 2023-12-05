@@ -10,8 +10,5 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
 
-    public function pdf()
-    {
-        return view('test');
-    }
+
 }

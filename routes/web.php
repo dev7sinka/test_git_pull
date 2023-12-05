@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\ProjectController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,47 +19,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
-
-Route::get('/pull', function () {
-
-    $process = new Process(['git', 'pull']);
-    $process->setTimeout(null);
-    $process->run();
-
-    if (!$process->isSuccessful()) {
-        throw new ProcessFailedException($process);
-    }
-
-    return 'Git pull successful';
+Route::group(['prefix' => 'project'], function () {
+    Route::get('/', [ProjectController::class, 'index'])->name('project.index');
+    Route::post('/register', [ProjectController::class, 'register'])->name('project.register');
+    Route::get('/pullllll', [ProjectController::class, 'pull'])->name('pull.pull');
 });
-
-Route::get('/git-command', function () {
-    $commands = [
-        'git status', // Example Git command: git status
-        'git log',    // Another Git command: git log
-        // Add more Git commands or other shell commands here
-        'git branch',
-    ];
-
-    $output = '';
-
-    foreach ($commands as $command) {
-        $process = Process::fromShellCommandline($command);
-        $process->setTimeout(null);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        $output .= '<p>Command: ' . $command . '</p>';
-        $output .= '<pre>' . $process->getOutput() . '</pre>';
-    }
-
-    return $output;
-});
-
-Route::get('test', [Controller::class, 'pdf']);

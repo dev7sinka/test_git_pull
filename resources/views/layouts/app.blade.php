@@ -5,10 +5,10 @@
     <base href="./">
     <meta charset="utf-8">
     @include('layouts.partials.css')
+    @vite(['resources/js/app.js'])
 </head>
 
 <body>
-
     {{-- sidebar --}}
     <div class="sidebar sidebar-dark sidebar-fixed" id="sidebar">
         @include('layouts.sidebar.logo-sidebar')
@@ -22,7 +22,10 @@
         @include('layouts.header.header')
 
         <div class="body flex-grow-1 px-3">
-            <div class="bg-white shadow-sm rounded p-3">
+
+            @include('layouts.partials.messages')
+            
+            <div class="container-lg">
 
                 {{-- content --}}
                 @yield('content')
