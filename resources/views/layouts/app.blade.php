@@ -5,15 +5,20 @@
     <base href="./">
     <meta charset="utf-8">
     @include('layouts.partials.css')
-    @vite(['resources/js/app.js'])
+    @vite(['resources/js/app.js','resources/css/app.css'])
 </head>
 
 <body>
+    <div id="spinner"  class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+
     {{-- sidebar --}}
     <div class="sidebar sidebar-dark sidebar-fixed" id="sidebar">
         @include('layouts.sidebar.logo-sidebar')
         @include('layouts.sidebar.sidebar')
     </div>
+
     {{-- end sidebar --}}
 
     <div class="wrapper d-flex flex-column min-vh-100 bg-light">
@@ -24,7 +29,7 @@
         <div class="body flex-grow-1 px-3">
 
             @include('layouts.partials.messages')
-            
+
             <div class="container-lg">
 
                 {{-- content --}}

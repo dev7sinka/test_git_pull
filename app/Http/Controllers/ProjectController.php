@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Classes\Enum\ProjectStatusEnum;
 use App\Classes\Services\Interfaces\IProjectService;
+use App\Http\Requests\ProjectRequest;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use Illuminate\Http\Request;
@@ -32,7 +33,7 @@ class ProjectController extends Controller
     /**
      * save data new project
      */
-    public function register(Request $request)
+    public function register(ProjectRequest $request)
     {
         $create_project = $this->projectService->create($request->all());
         if (!$create_project == false) {
@@ -81,7 +82,7 @@ class ProjectController extends Controller
             return response()->json(['error' => $output], 500);
         }
 
-        return response()->json(['result' => $output]);
+        return response()->json(['text' => $output]);
     }
 
 

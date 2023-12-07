@@ -30,7 +30,11 @@
                         </div>
                         <div class="col-sm-8 ps-3">
                             <h5>{{ $project->name }}</h5>
-                            <button type="button" data-project-id="{{ $project->id }}" class="btn btn-success pull-project">Git pull</button>
+                            <button type="button" data-project-id="{{ $project->id }}" class="btn btn-success pull-project"
+                                @if ($project->status == ProjectStatusEnum::OFF->value)
+                                    disabled
+                                @endif
+                                >Git pull</button>
                         </div>
                     </div>
                 </div>
@@ -71,6 +75,7 @@
             </div>
         </div>
     </div>
+    @include('modal.error')
 @endsection
 
 @section('script_js')
@@ -89,9 +94,16 @@
                         project_id: project_id
                     },
                     success: function(data) {
+                        if (data.text) {
+                            $('#text-error').text(data.text);
+                        }
+                        $('#text-error').text('path project sai');
+                        $('#modal-error').modal('show');
                         console.log(data);
                     },
                     error: function(xhr, status, error) {
+                        $('#text-error').text(xhr.responseJSON.error)
+                        $('#modal-error').modal('show')
                         console.log(xhr.responseJSON.error);
                     }
                 });
