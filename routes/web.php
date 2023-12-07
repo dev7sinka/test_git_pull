@@ -22,5 +22,5 @@ Route::get('/', function () {
 Route::group(['prefix' => 'project'], function () {
     Route::get('/', [ProjectController::class, 'index'])->name('project.index');
     Route::post('/register', [ProjectController::class, 'register'])->name('project.register');
-    Route::get('/pullllll', [ProjectController::class, 'pull'])->name('pull.pull');
+    Route::get('/git-pull', [ProjectController::class, 'gitPull'])->name('project.gitPull');
 });

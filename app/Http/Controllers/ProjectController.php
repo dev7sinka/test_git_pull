@@ -34,13 +34,13 @@ class ProjectController extends Controller
      */
     public function register(Request $request)
     {
-        // if (!$create == false) {
-            Session::flash('error', "rẻtrtewtr!");
+        $create_project = $this->projectService->create($request->all());
+        if (!$create_project == false) {
+            Session::flash('error', "Tạo project thất bại!");
             return redirect()->route('project.index');
-        // }
-        // Session::flash('success', "プロファイルを正常に編集しました!");
-        // $create_project = $this->projectService->create($request->all());
-        // return redirect()->route('project.index');
+        }
+        Session::flash('success', "Tạo project thành công!");
+        return redirect()->route('project.index');
     }
 
     /**
@@ -59,7 +59,7 @@ class ProjectController extends Controller
         return $statusValues;
     }
 
-    public function pull()
+    public function gitPull(Request $request)
     {
         // $username = 'dev.sinka@gmail.com';
         // $password = 'Sinkavn@#1';
@@ -67,7 +67,14 @@ class ProjectController extends Controller
 
         // $repository = 'https://'.$username.':'.$password.'@github.com:Sinka-Vietnam/solar_material_wholesale_management.git';
 
-        $path_project = 'C:\\laragon\\www\\solar_material_wholesale_management';
+
+        $project = $this->projectService->findById($request->project_id);
+
+        if ($project->status == ProjectStatusEnum::OFF->value) {
+            return response()->json();
+        }
+
+        $path_project = $project->link_folder;
         $output = shell_exec("cd $path_project && git pull 2>&1");
 
         if (strpos(strtolower($output), 'error') !== false) {

@@ -16,4 +16,10 @@ interface IProjectService
      * @param array $data
      */
     public function create($data);
+
+    /**
+     * find project by id
+     * @param int $project_id
+     */
+    public function findById($id);
 }

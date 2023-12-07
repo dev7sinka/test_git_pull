@@ -42,7 +42,7 @@ class ProjectService extends BaseService implements IProjectService
             ];
 
             $this->projectRepository->create($attr);
-            
+
             DB::commit();
             return true;
 
@@ -51,5 +51,13 @@ class ProjectService extends BaseService implements IProjectService
             Log::error('Error create new project: ' . $e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findById($id)
+    {
+        return $this->projectRepository->findById($id);
     }
 }

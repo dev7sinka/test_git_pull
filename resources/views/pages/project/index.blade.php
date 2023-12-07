@@ -30,7 +30,7 @@
                         </div>
                         <div class="col-sm-8 ps-3">
                             <h5>{{ $project->name }}</h5>
-                            <a href="{{ route('pull.pull') }}"  class="btn btn-success">Git pull</a>
+                            <button type="button" data-project-id="{{ $project->id }}" class="btn btn-success pull-project">Git pull</button>
                         </div>
                     </div>
                 </div>
@@ -78,6 +78,23 @@
         $(document).ready(function() {
             $(document).on("click", "#save_new_project", function() {
                 $('#form-create-project').submit();
+            });
+
+            $(document).on("click", ".pull-project", function() {
+                var project_id = $(this).attr('data-project-id');
+                $.ajax({
+                    type: "GET",
+                    url: "{{ route('project.gitPull') }}",
+                    data: {
+                        project_id: project_id
+                    },
+                    success: function(data) {
+                        console.log(data);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(xhr.responseJSON.error);
+                    }
+                });
             });
         });
     </script>
