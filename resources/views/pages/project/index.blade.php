@@ -30,11 +30,13 @@
                         </div>
                         <div class="col-sm-8 ps-3">
                             <h5>{{ $project->name }}</h5>
-                            <button type="button" data-project-id="{{ $project->id }}" class="btn btn-success pull-project"
-                                @if ($project->status == ProjectStatusEnum::OFF->value)
-                                    disabled
-                                @endif
-                                >Git pull</button>
+                            <div class="col-12">
+                                <button type="button" data-project-id="{{ $project->id }}"
+                                    class="btn btn-success pull-project"
+                                    @if ($project->status == ProjectStatusEnum::OFF->value) disabled @endif>Git pull</button>
+                                <button class="btn btn-info detail-project"
+                                    data-project-id="{{ $project->id }}">Detail</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -43,38 +45,8 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="addProject">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Add project</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="{{ route('project.register') }}" method="post" class="modal-body" id="form-create-project">
-                    @csrf
-                    @foreach ($statusProject as  $status)
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" @if ( $status['value'] == ProjectStatusEnum::ON->value) checked @endif type="radio" name="status" id="status{{ $status['name'] }}"
-                                value="{{ $status['value'] }}">
-                            <label class="form-check-label" for="status{{ $status['name'] }}">{{ $status['name'] }}</label>
-                        </div>
-                    @endforeach
-                    <div class="form-floating mt-4">
-                        <input class="form-control" id="name_project" name="name">
-                        <label for="name_project">Name project</label>
-                    </div>
-                    <div class="form-floating mt-4">
-                        <input class="form-control" id="link_folder" name="link_folder">
-                        <label for="link_folder">Link folder</label>
-                    </div>
-                </form>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="save_new_project">Save</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    @include('pages.project.partials._modal-add-project')
+    @include('pages.project.partials._modal-detail-project')
     @include('modal.error')
 @endsection
 
@@ -85,13 +57,18 @@
                 $('#form-create-project').submit();
             });
 
+            $(document).on("click", "#save_edit_project", function() {
+                $('#form-edit-project').submit();
+            });
+
             $(document).on("click", ".pull-project", function() {
                 $('#modal-command').modal('show');
                 $('#text-command').text('');
                 var project_id = $(this).attr('data-project-id');
 
                 // Start listening for events
-                var eventSource = new EventSource(`{{ route('project.gitPull') }}?project_id=${project_id}`);
+                var eventSource = new EventSource(
+                `{{ route('project.gitPull') }}?project_id=${project_id}`);
 
                 // Handle messages received
                 eventSource.onmessage = function(event) {
@@ -104,9 +81,47 @@
                 eventSource.onerror = function(error) {
                     // Handle any errors that occur
                     console.error('EventSource failed:', error);
+                    $('#text-command').text('Link folder sai !');
                     eventSource.close();
                 };
             });
+
+            $(document).on("click", ".detail-project", function() {
+                deleteValueModal();
+                var project_id = $(this).attr('data-project-id');
+                $.ajax({
+                    type: 'get',
+                    data: {
+                        project_id: project_id
+                    },
+                    url: "{{ route('project.detail') }}",
+                    success: function(response) {
+                        $(".id_project").val(project_id);
+                        $("#edit_memo").text(response.project.memo);
+                        $("#edit_name_project").val(response.project.name);
+                        $("#edit_link_folder").val(response.project.link_folder);
+                        // Loop through each radio button
+                        $("input[name='edit_status']").each(function() {
+                            // Check if the value of the current radio button matches the project status
+                            if ($(this).val() == response.project.status) {
+                                $(this).prop('checked', true); // Set it as checked
+                            }
+                        });
+                        $('#detailProject').modal('show');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("An error occurred:", error);
+                    }
+
+                });
+            })
+
+            function deleteValueModal()
+            {
+                $("#edit_memo").text('');
+                $("#edit_name_project").val('');
+                $("#edit_link_folder").val('');
+            }
         });
     </script>
 @endsection

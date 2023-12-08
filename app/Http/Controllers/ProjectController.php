@@ -93,5 +93,30 @@ class ProjectController extends Controller
         return response()->noContent();
     }
 
+    /**
+     * get detail project by id
+     */
+    public function detail(Request $request)
+    {
+        $project = $this->projectService->findById($request->project_id);
+        if (!$project) {
+            return response()->json(['error' => 'không có project']);
+        }
+        return response()->json(['project' => $project]);
+    }
+
+    /**
+     * edit project
+     */
+    public function editProject(Request $request)
+    {
+        $edit_project = $this->projectService->edit($request->all());
+        if ($edit_project == false) {
+            Session::flash('error', "edit project thất bại!");
+            return redirect()->route('project.index');
+        }
+        Session::flash('success', "edit project thành công!");
+        return redirect()->route('project.index');
+    }
 
 }

@@ -22,4 +22,11 @@ interface IProjectService
      * @param int $project_id
      */
     public function findById($id);
+
+
+    /**
+     * edit project
+     * @param array $data
+     */
+    public function edit($data);
 }
