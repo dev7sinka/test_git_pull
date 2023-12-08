@@ -33,10 +33,10 @@ class ProjectController extends Controller
     /**
      * save data new project
      */
-    public function register(ProjectRequest $request)
+    public function register(Request $request)
     {
         $create_project = $this->projectService->create($request->all());
-        if (!$create_project == false) {
+        if ($create_project == false) {
             Session::flash('error', "Tạo project thất bại!");
             return redirect()->route('project.index');
         }
@@ -62,27 +62,35 @@ class ProjectController extends Controller
 
     public function gitPull(Request $request)
     {
-        // $username = 'dev.sinka@gmail.com';
-        // $password = 'Sinkavn@#1';
-        // $link_repository = 'https://github.com/Sinka-Vietnam/solar_material_wholesale_management.git';
-
-        // $repository = 'https://'.$username.':'.$password.'@github.com:Sinka-Vietnam/solar_material_wholesale_management.git';
-
-
         $project = $this->projectService->findById($request->project_id);
 
         if ($project->status == ProjectStatusEnum::OFF->value) {
             return response()->json();
         }
 
-        $path_project = $project->link_folder;
-        $output = shell_exec("cd $path_project && git pull 2>&1");
+        // Headers for Server-Sent Events
+        header('Content-Type: text/event-stream');
+        header('Cache-Control: no-cache');
 
-        if (strpos(strtolower($output), 'error') !== false) {
-            return response()->json(['error' => $output], 500);
+        // Flushes the buffer, enabling real-time output
+        ob_end_clean();
+        ini_set('implicit_flush', 1);
+        ob_implicit_flush(1);
+
+        $path_project = $project->link_folder;
+
+        // Run the git pull command and handle each line of output
+        $handle = popen("cd $path_project && git pull 2>&1", 'r');
+        if ($handle) {
+            while (!feof($handle)) {
+                $buffer = fgets($handle);
+                echo "data: $buffer\n\n";
+                flush(); // Flush the output to the browser.
+            }
+            pclose($handle);
         }
 
-        return response()->json(['text' => $output]);
+        return response()->noContent();
     }
 
 

@@ -86,27 +86,26 @@
             });
 
             $(document).on("click", ".pull-project", function() {
+                $('#modal-command').modal('show');
+                $('#text-command').text('');
                 var project_id = $(this).attr('data-project-id');
-                $.ajax({
-                    type: "GET",
-                    url: "{{ route('project.gitPull') }}",
-                    data: {
-                        project_id: project_id
-                    },
-                    success: function(data) {
-                        if (data.text) {
-                            $('#text-error').text(data.text);
-                        }
-                        $('#text-error').text('path project sai');
-                        $('#modal-error').modal('show');
-                        console.log(data);
-                    },
-                    error: function(xhr, status, error) {
-                        $('#text-error').text(xhr.responseJSON.error)
-                        $('#modal-error').modal('show')
-                        console.log(xhr.responseJSON.error);
-                    }
-                });
+
+                // Start listening for events
+                var eventSource = new EventSource(`{{ route('project.gitPull') }}?project_id=${project_id}`);
+
+                // Handle messages received
+                eventSource.onmessage = function(event) {
+                    console.log(event.data); // Logging each line of output
+
+                    // Append each line of output to the command output div
+                    $('#text-command').append(`${event.data}\n`);
+                };
+
+                eventSource.onerror = function(error) {
+                    // Handle any errors that occur
+                    console.error('EventSource failed:', error);
+                    eventSource.close();
+                };
             });
         });
     </script>
